@@ -2,7 +2,7 @@
 
 This set of files is used to calculate the evolution of a domain wall network on a 2D grid using the PRS equaations, both in their standard form and in a version where only grid points that correspond to walls or radiation are evolved.
 
-# File description
+## File description
 
 input.ini - Where the network and simulation parameters are stores. You can also name the set of data files that are output
 
@@ -26,6 +26,6 @@ reduce_data.py - Reduces the original data organizes it for plotting
 
 plot_data.py - Plots the data
 
-# How to use
+## How to use
 
 In general, to obtain the data all you have to do is run "run_files.py" in a Python 3 interpreter. The cleanup file is run first, then the Cython files are compiled (you must have a C compiler installed!) and then the simulation is performed. The UI asks which parts you want to run, with the default option highlighted.

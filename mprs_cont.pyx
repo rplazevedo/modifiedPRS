@@ -23,8 +23,7 @@ def run():
     cdef float delta_x = float(config['PRS']['dx'])
     cdef float delta_y = float(config['PRS']['dy'])
     cdef float Nw_alpha = float(config['Parameters']['Nw_alpha'])
-    cdef float alpha1 = float(config['Parameters']['alpha1'])
-    cdef float alpha2 = float(config['Parameters']['alpha2'])
+    cdef float alpha_e = float(config['Parameters']['alpha_e'])
     cdef int daeta = int(config['Parameters']['dlna/dlneta'])
     cdef str name = config['Parameters']['name']
     all_phi = config['Parameters']['all_phi']
@@ -134,55 +133,56 @@ def run():
         for n in range(0,Nt-1):
             for i in range(0,Nx):
                 for j in range(0,Nx):
+                           
+                    # Calculates the gradient of phi
+                    
+                    if (i==0 and j==0):
+                        #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,Nx-1,j]+phi[n,i,Nx-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,Nx-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,Nx-1])/(delta_y**2)
+
+                    if (i==0 and j>0 and j<Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,Nx-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,Nx-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
+
+                    if (j==0 and i>0 and i<Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,Nx-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,Nx-1])/(delta_y**2)
+
+                    if (j==Nx-1 and i>0 and i<Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,0]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,0]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
+
+                    if (i==Nx-1 and j>0 and j<Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,0,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,0,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
+
+                    if (i==Nx-1 and j==Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,0,j]+phi[n,i,0]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,0,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,0]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
+
+                    if (i>0 and i<Nx-1 and j>0 and j<Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
+                         nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
+
+                    if (i==0 and j==Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,0]+phi[n,Nx-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,Nx-1,j])/(delta_x**2) + (phi[n,i,0]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
+
+                    if (j==0 and i==Nx-1):
+                        #nabla_phi[n,i,j] =  phi[n,0,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,Nx-1]-4*phi[n,i,j]
+                        nabla_phi[n,i,j] = (phi[n,0,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,Nx-1])/(delta_y**2)
     
-                    if (phi[n,i,j] <=alpha1 and phi[n,i,j] >=-alpha1):
-                        
-                        if (i==0 and j==0):
-                            #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,Nx-1,j]+phi[n,i,Nx-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,Nx-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,Nx-1])/(delta_y**2)
-    
-                        if (i==0 and j>0 and j<Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,Nx-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,Nx-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
-    
-                        if (j==0 and i>0 and i<Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,Nx-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,Nx-1])/(delta_y**2)
-    
-                        if (j==Nx-1 and i>0 and i<Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,0]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,0]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
-    
-                        if (i==Nx-1 and j>0 and j<Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,0,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,0,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
-    
-                        if (i==Nx-1 and j==Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,0,j]+phi[n,i,0]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,0,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,0]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
-    
-                        if (i>0 and i<Nx-1 and j>0 and j<Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
-                             nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
-    
-                        if (i==0 and j==Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,i+1,j]+phi[n,i,0]+phi[n,Nx-1,j]+phi[n,i,j-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,i+1,j]-2*phi[n,i,j]+phi[n,Nx-1,j])/(delta_x**2) + (phi[n,i,0]-2*phi[n,i,j]+phi[n,i,j-1])/(delta_y**2)
-    
-                        if (j==0 and i==Nx-1):
-                            #nabla_phi[n,i,j] =  phi[n,0,j]+phi[n,i,j+1]+phi[n,i-1,j]+phi[n,i,Nx-1]-4*phi[n,i,j]
-                            nabla_phi[n,i,j] = (phi[n,0,j]-2*phi[n,i,j]+phi[n,i-1,j])/(delta_x**2) + (phi[n,i,j+1]-2*phi[n,i,j]+phi[n,i,Nx-1])/(delta_y**2)
-    
-        
-                        delta = 0.5*alpha*dt*(daeta)/(tspan[n])
+                    
+                    # checks if the enrgy condition is verified
+                    
+                    if abs(d_phi[n,i,j]**2 +( ((1.0/2)*(phi[n,i+1,j]-phi[n,Nx-1,j]))**2+((1.0/2)*(phi[n,i,j+1]-phi[n,i,j-1]))**2))
                         d_V[n,i,j]=V0*4*(phi[n,i,j]/phi_0)*( (phi[n,i,j]**2)/(phi_0**2)-1 )
-                        d_phi[n+1,i,j] = ((1-delta)*d_phi[n,i,j]+dt*(nabla_phi[n,i,j]-d_V[n,i,j]))/(1+delta)
-                        
+                        d_phi[n+1,i,j] = ((1-delta)*d_phi[n,i,j]+dt*(nabla_phi[n,i,j]-d_V[n,i,j]))/(1+delta)                        
                         #Ek[n+1] = Ek[n+1] +  1/(8*pi)*(d_phi[n+1,i,j])**2
                         phi[n+1,i,j] = phi[n,i,j] + dt*d_phi[n+1,i,j]
     
     
-    
+                        # abs(phi) < Nw_alpha -> Wall, else it's radiation
                         if (abs(phi[n+1,i,j])<= Nw_alpha):
                             #phi_w[n+1,i,j]=1
                             v[n+1] = v[n+1] + ((d_phi[n+1,i,j])**2/(1.0))/(V0*( (phi[n+1,i,j]**2)/(phi_0**2)-1)**2)

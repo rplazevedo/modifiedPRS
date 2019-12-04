@@ -29,7 +29,7 @@ os.system("python3 setup.py build_ext --inplace")
 
 import sprs_init   
 import sprs_cont
-import mprs_cont
+import mprs_cont_vect
 import merge_v
 import merge_phi
 
@@ -47,7 +47,7 @@ if run_sPRS_cont in ['','y','Y']:
 
 if run_mPRS in ['','y','Y']:
     print('\n---Running mPRS---')
-    mprs_cont.run()
+    mprs_cont_vect.run()
     merge_v.run()
     reduce_data.run()
     if all_phi in ['yes', 'YES', 'some', 'SOME']:
