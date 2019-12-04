@@ -257,4 +257,3 @@ def run():
     sys.stdout = orig_stdout
     f.close()
 
-run()
