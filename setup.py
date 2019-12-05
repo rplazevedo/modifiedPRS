@@ -4,7 +4,7 @@ from Cython.Build import cythonize
 import numpy
 
 setup(
-    ext_modules = cythonize(["sprs_init.pyx", "sprs_cont.pyx", "merge_v.pyx", "merge_phi.pyx"],annotate=True),
+    ext_modules = cythonize(["sprs_init.pyx", "merge_v.pyx", "merge_phi.pyx"],annotate=True),
     include_dirs=[numpy.get_include()]
 )
 
