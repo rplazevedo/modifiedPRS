@@ -69,8 +69,8 @@ def run():
     sys.stdout = f
     
     
-    print ("Running")
-    print ("Reading the last part and continue the calulation (optimized)")
+    print ("Running mPRS")
+    print ("Reading the last part and continue the calulation")
     print("CONT:GRID POINTS on space interval (Nx=Ny): " + str(Nx))
     print("CONT:GRID POINTS on time interval (Nt): " + str(Nt))
     
@@ -129,6 +129,7 @@ def run():
               
             step_start_time = time.time()                        
             # Calculates the gradient of phi   
+            
             nabla_phi[n] = ( (np.roll(phi[n],1,axis=0)+np.roll(phi[n],-1,axis=0)-2*phi[n])/(delta_x**2)+
                              (np.roll(phi[n],1,axis=1)+np.roll(phi[n],-1,axis=1)-2*phi[n])/(delta_y**2))                          
                     
@@ -142,14 +143,14 @@ def run():
                                +V) < V0*alpha_e)*1
             phi[n] = np.where(energ_cond * ((phi[n] < 0)*1),
                                -1.0, phi[n])
-            phi[n] = np.where(energ_cond * ((phi[n] < 0)*1),
+            phi[n] = np.where(energ_cond * ((phi[n] > 0)*1),
                                1.0, phi[n])
             
             
             
             delta = 0.5*alpha*dt*(daeta)/(tspan[n])                
             d_V[n]=V0*4*(phi[n]/phi_0)*( (phi[n]**2)/(phi_0**2)-1 )
-            d_phi[n+1] = np.where(abs(d_phi[n]**2 + (0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2+(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2+V)<V0*alpha_e,
+            d_phi[n+1] = np.where(energ_cond,
                                      0.0,
                                      ((1-delta)*d_phi[n]+dt*(nabla_phi[n]-d_V[n]))/(1+delta))                        
             #Ek[n+1] = Ek[n+1] +  1/(8*pi)*(d_phi[n+1])**2
@@ -172,8 +173,8 @@ def run():
             count_op = count_op+1    
             N_walls[n+1] = Nw
         
-            print("n: " , n, "count: ", count_op, "part = ", part)
-            print("--- %s seconds ---" % (time.time() - step_start_time))
+#            print("n: " , n, "count: ", count_op, "part = ", part)
+#            print("--- %s seconds ---" % (time.time() - step_start_time))
             n_op[n+1] =count_op + count_op_last
     
             #print("n_op[n+1]", n_op[n+1])
