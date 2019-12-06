@@ -125,7 +125,7 @@ def run():
     for part in range(1,nparts+1):
         for n in range(0,Nt-1):
               
-            step_start_time = time.time()                        
+#            step_start_time = time.time()                        
             # Calculates the gradient of phi   
             nabla_phi[n] = ( (np.roll(phi[n],1,axis=0)+np.roll(phi[n],-1,axis=0)-2*phi[n])/(delta_x**2)+
                              (np.roll(phi[n],1,axis=1)+np.roll(phi[n],-1,axis=1)-2*phi[n])/(delta_y**2))                          
