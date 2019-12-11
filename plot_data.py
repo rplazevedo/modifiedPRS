@@ -27,6 +27,6 @@ while os.path.isfile(str(name) +'_'+str(number)+ '_v.data'):
         V.append(float(y))
     plt.plot(T,V)
     number += 1
-
+plt.xscale('log')
 plt.show()
     
