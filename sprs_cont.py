@@ -28,7 +28,6 @@ def run():
     delta_x = float(config['PRS']['dx'])
     delta_y = float(config['PRS']['dy'])
     Nw_alpha = float(config['Parameters']['Nw_alpha'])
-    alpha_e = float(config['Parameters']['alpha_e'])
     daeta = int(config['Parameters']['dlna/dlneta'])
     name = config['Parameters']['name']
     all_phi = config['Parameters']['all_phi']
@@ -44,7 +43,6 @@ def run():
     # initializes the arrays
     tspan= np.zeros((Nt),dtype=DTYPE)
     phi = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
-    energ_cond = np.zeros((Nx,Nx),dtype=DTYPE)
     nabla_phi = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
     d_phi = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
     d_V = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
@@ -62,19 +60,19 @@ def run():
     n_op_r = np.load(str(name)+'_nop_data'+str(last_part)+'.npy')
     
     
-    start_time = time.time()    # initial time for measuring speed of calculation
+    start_time = time.time()
     
     orig_stdout = sys.stdout
     f = open('out.txt', 'a')
     sys.stdout = f
     
     
-    print ("Running mPRS")
+    print ("Running rest of sPRS")
     print ("Reading the last part and continue the calulation")
     print("CONT:GRID POINTS on space interval (Nx=Ny): " + str(Nx))
     print("CONT:GRID POINTS on time interval (Nt): " + str(Nt))
     
-    print("w0 = ", w0, ", V0 = ", V0, ", phi_0 = ", phi_0, "t_0 =", t0, "dt = ", dt, "alpha e =", alpha_e)
+    print("w0 = ", w0, ", V0 = ", V0, ", phi_0 = ", phi_0, "t_0 =", t0, "dt = ", dt)
     
     
     phi = phi_r
@@ -118,7 +116,7 @@ def run():
         tspan[i] = tspan[0]+dt*i
         #print(tspan[i])
     
-    Nw=0
+    Nw = 0
     
     count_op_last = int(n_op[0])
         
@@ -127,44 +125,37 @@ def run():
     for part in range(1,nparts+1):
         for n in range(0,Nt-1):
               
-#            step_start_time = time.time()    
-                    
+#            step_start_time = time.time()                        
             # Calculates the gradient of phi   
             nabla_phi[n] = ( (np.roll(phi[n],1,axis=0)+np.roll(phi[n],-1,axis=0)-2*phi[n])/(delta_x**2)+
                              (np.roll(phi[n],1,axis=1)+np.roll(phi[n],-1,axis=1)-2*phi[n])/(delta_y**2))                          
-                    
-            V = V0*((phi[n]/phi_0)**2-1)**2      #potential
-
-            energ_cond = (abs(d_phi[n]**2 
-                               +(0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2
-                               +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2
-                               +V) < V0*alpha_e)*1      #energy condition
-            phi[n][energ_cond * phi[n] < 0] = -1.0      #negative vacua
-            phi[n][energ_cond * phi[n] > 0] = 1.0       #positive vacua
-            
-            delta = 0.5*alpha*dt*(daeta)/(tspan[n])                
+ 
+            delta = 0.5*alpha*dt*(daeta)/(tspan[n])                                  
             d_V[n]=V0*4*(phi[n]/phi_0)*( (phi[n]**2)/(phi_0**2)-1 )
-            #sets d_phi to 0 where the condition is not met, calculates it otherwise
-            d_phi[n+1] = np.where(energ_cond,
-                                     0.0,
-                                     ((1-delta)*d_phi[n]+dt*(nabla_phi[n]-d_V[n]))/(1+delta))                        
+            d_phi[n+1] = ((1-delta)*d_phi[n]+dt*(nabla_phi[n]-d_V[n]))/(1+delta)
+                  
             #Ek[n+1] = Ek[n+1] +  1/(8*pi)*(d_phi[n+1])**2
             phi[n+1] = phi[n] + dt*d_phi[n+1]
 
-            wall_loc = abs(phi[n+1]) <= Nw_alpha    #condition for a pt = wall
-            Nw = np.sum(wall_loc)                   # number of walls
-            # average velocity of the walls
-            v[n+1] = (1.0/(2.0*Nw))*np.sum(
-                                 ((d_phi[n+1][wall_loc])**2/(1.0))/
-                                 (V0*( (phi[n+1][wall_loc]**2)/(phi_0**2)-1)**2))                
+            # abs(phi) < Nw_alpha -> Wall, else it's radiation
+            # v is the average velocity of the walls!
+            wall_loc = abs(phi[n+1]) <= Nw_alpha
+            Nw = np.sum(wall_loc)
+            v[n+1] = (1.0/(2.0*Nw))*np.sum(np.where(wall_loc,
+                                 ((d_phi[n+1])**2/(1.0))/(V0*( (phi[n+1]**2)/(phi_0**2)-1)**2),
+                                 0))
             
-            count_op = count_op+1    
+
+#            else:
+#                phi_w[n+1,i,j]=0
+
+
+            count_op += 1    
             N_walls[n+1] = Nw
         
 #            print("n: " , n, "count: ", count_op, "part = ", part)
 #            print("--- %s seconds ---" % (time.time() - step_start_time))
-            
-            n_op[n+1] =count_op + count_op_last
+            n_op[n+1] = count_op + count_op_last
     
             #print("n_op[n+1]", n_op[n+1])
     
@@ -246,4 +237,4 @@ def run():
     
     sys.stdout = orig_stdout
     f.close()
-run()
+

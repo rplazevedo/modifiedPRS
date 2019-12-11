@@ -76,10 +76,6 @@ def run():
             except FileNotFoundError:
                 pass
             number+=1
-        try:
-            os.remove('out.txt') 
-        except FileNotFoundError:
-            pass
     
     else:
         delete_bulk = input('Delete bulk data? (y)/n \n')
@@ -145,6 +141,10 @@ def run():
                 except FileNotFoundError:
                     pass
                 number+=1
-            
+                
+    try:
+        os.remove('out.txt') 
+    except FileNotFoundError:
+        pass        
            
     print('---Cleanup done!---')

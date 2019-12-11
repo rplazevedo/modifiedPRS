@@ -5,42 +5,32 @@ import time
 import os
 import configparser
 
-cimport numpy as np
 
 DTYPE = np.float32
-ctypedef np.float32_t DTYPE_t
 
 config = configparser.ConfigParser()
 config.read('input.ini')
 
 def run():    
-    cdef int Nx = int(config['PRS']['Lattice_size'])
-    cdef int Nt_int = int(config['PRS']['points_per_part'])
-    cdef int parts = int(config['PRS']['sPRS_parts'])+int(config['PRS']['mPRS_parts'])
-    cdef str name = config['Parameters']['name']
+    Nx = int(config['PRS']['Lattice_size'])
+    Nt_int = int(config['PRS']['points_per_part'])
+    parts = int(config['PRS']['sPRS_parts'])+int(config['PRS']['mPRS_parts'])
+    name = config['Parameters']['name']
     
-    #cdef int parts = 150
-    #cdef int Nt_int = 10
+    #parts = 150
+    #Nt_int = 10
     
-    cdef int Nt=parts*Nt_int
+    Nt=parts*Nt_int
     #Nx = 2**6
     
-    cdef int c=0
+    c=0
     
     # Deletes old memory-map and creates new one
     try:
         os.remove(str(name)+'_phi.mymemmap')
     except FileNotFoundError:
         pass
-    cdef float [:,:,:] phi = np.memmap(str(name)+'_phi.mymemmap', dtype='float32', mode='w+', shape=(Nt,Nx,Nx))
-    
-    cdef float [:,:,:] phi_r
-    
-    cdef int start_n=1
-    cdef int p
-    
-    
-    
+    phi = np.memmap(str(name)+'_phi.mymemmap', dtype='float32', mode='w+', shape=(Nt,Nx,Nx))
     
     for p in range(1, parts+1):
         # Load the data files

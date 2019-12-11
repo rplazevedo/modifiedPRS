@@ -10,7 +10,6 @@ Created on Wed Nov 13 15:27:50 2019
 import configparser
 import reduce_data
 import cleanup
-import os
         
 
 config = configparser.ConfigParser()
@@ -25,13 +24,12 @@ run_init = input('Run initial sPRS? (y)/n \n')
 run_sPRS_cont = input('Run full sPRS? (y)/n \n')
 run_mPRS = input('Run mPRS? (y)/n \n')
 
-os.system("python3 setup.py build_ext --inplace")
-
-import sprs_init   
-import sprs_cont_vect
-import mprs_cont_vect
+import sprs_init
+import sprs_cont
+import mprs_cont
 import merge_v
 import merge_phi
+ 
 
 if run_init in ['','y','Y']:
     print('\n---Running initial sPRS---' )
@@ -39,7 +37,7 @@ if run_init in ['','y','Y']:
 
 if run_sPRS_cont in ['','y','Y']:
     print('\n---Running rest of sPRS---' )
-    sprs_cont_vect.run()
+    sprs_cont.run()
     merge_v.run()
     reduce_data.run()
     if all_phi in ['yes', 'YES', 'some', 'SOME']:
@@ -47,27 +45,10 @@ if run_sPRS_cont in ['','y','Y']:
 
 if run_mPRS in ['','y','Y']:
     print('\n---Running mPRS---')
-    mprs_cont_vect.run()
+    mprs_cont.run()
     merge_v.run()
     reduce_data.run()
     if all_phi in ['yes', 'YES', 'some', 'SOME']:
         merge_phi.run()
 
 print('---Done!---')
-
-
-
-
-# plot the velocity
-        
-#print('---Plotting (to take over the world)---')
-#
-#X, Y = [], []
-#for line in open("v.data","r"):
-#    x, y = line.split()
-#    X.append(float(x))
-#    Y.append(float(y))
-#
-#plt.figure()
-#plt.plot(X,Y)
-#plt.show()
