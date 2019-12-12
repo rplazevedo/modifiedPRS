@@ -3,7 +3,7 @@
 """
 Created on Tue Dec  3 18:45:43 2019
 
-@author: rplazevedo
+@authors: rplazevedo, fferreira
 """
 
 import numpy as np
@@ -28,6 +28,8 @@ def run():
     delta_x = float(config['PRS']['dx'])
     delta_y = float(config['PRS']['dy'])
     Nw_alpha = float(config['Parameters']['Nw_alpha'])
+    alpha_1 = float(config['Parameters']['alpha_1'])
+    alpha_2 = float(config['Parameters']['alpha_2'])
     alpha_e = float(config['Parameters']['alpha_e'])
     daeta = int(config['Parameters']['dlna/dlneta'])
     name = config['Parameters']['name']
@@ -52,6 +54,8 @@ def run():
     v = np.zeros((Nt),dtype=DTYPE)
     N_walls = np.zeros((Nt),dtype=DTYPE)
     n_op = np.zeros((Nt),dtype=DTYPE)
+    exc_pts = np.zeros((Nt),dtype=DTYPE)
+
     
     # loads previous data
     phi_r = np.load(str(name)+'_phi_data'+str(last_part)+'.npy')
@@ -74,7 +78,8 @@ def run():
     print("CONT:GRID POINTS on space interval (Nx=Ny): " + str(Nx))
     print("CONT:GRID POINTS on time interval (Nt): " + str(Nt))
     
-    print("w0 = ", w0, ", V0 = ", V0, ", phi_0 = ", phi_0, "t_0 =", t0, "dt = ", dt, "alpha e =", alpha_e)
+    print("w0 = ", w0, ", V0 = ", V0, ", phi_0 = ", phi_0, ", t_0 =", t0, ", dt = ", dt,", alpha 1 =", alpha_1,
+            ', alpha 2 =', alpha_2, ", alpha e =", alpha_e)
     
     
     phi = phi_r
@@ -132,13 +137,26 @@ def run():
             # Calculates the gradient of phi   
             nabla_phi[n] = ( (np.roll(phi[n],1,axis=0)+np.roll(phi[n],-1,axis=0)-2*phi[n])/(delta_x**2)+
                              (np.roll(phi[n],1,axis=1)+np.roll(phi[n],-1,axis=1)-2*phi[n])/(delta_y**2))                          
-                    
+   
+            # Check where the energy is too low -> vacuum                 
             V = V0*((phi[n]/phi_0)**2-1)**2      #potential
-
-            energ_cond = (abs(d_phi[n]**2 
-                               +(0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2
-                               +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2
-                               +V) < V0*alpha_e)*1      #energy condition
+            energ_cond = (np.abs(d_phi[n]**2 
+                                +(0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2
+                                +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2
+                                +V) < V0*alpha_e)*1      
+            
+            # Old conditions - ONLY USE FOR COMPARISONS 
+            # cond_1 = (np.abs(phi[n]) > alpha_1)*1
+            # cond_2 = (np.abs(d_phi[n]**2 +(0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2
+            #                     +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2) < alpha_2)*1
+            # cond_1_xf = (np.abs(np.roll(phi[n],1,axis=0)) > alpha_1)*1
+            # cond_1_xb = (np.abs(np.roll(phi[n],-1,axis=0)) > alpha_1)*1
+            # cond_1_yf = (np.abs(np.roll(phi[n],1,axis=1)) > alpha_1)*1
+            # cond_1_yb = (np.abs(np.roll(phi[n],-1,axis=1)) > alpha_1)*1               
+            # energ_cond = cond_1 * cond_2 * cond_1_xf * cond_1_xb * cond_1_yf * cond_1_yb
+            
+            exc_pts[n] = np.sum(energ_cond)
+            
             phi[n][energ_cond * phi[n] < 0] = -1.0      #negative vacua
             phi[n][energ_cond * phi[n] > 0] = 1.0       #positive vacua
             
@@ -205,7 +223,8 @@ def run():
         np.save(str(name) + '_vdata' + str(part+int(last_part)) + '.npy', v)
         np.save(str(name) + '_nwalls_data' + str(part+int(last_part)) + '.npy', N_walls)
         np.save(str(name) + '_nop_data' + str(part+int(last_part)) + '.npy', n_op)
-    
+        np.save(str(name) + '_exc_pts_data' + str(part+int(last_part)) + '.npy', exc_pts/Nx**2)
+
     
     #    print("Part " + str(part+int(last_part))+" is saved--- %s seconds ---" % (time.time() - start_time))
     
@@ -232,6 +251,9 @@ def run():
     
         N_walls[0] = N_walls[-1]
         N_walls[1:] = 0
+        
+        exc_pts[0] = exc_pts[-1]
+        exc_pts[1:] = 0
     
         n_op[0] = n_op[-1]
         n_op[1:] = 0

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec  3 18:45:43 2019
+Created on Tue Dec  5 15:24:14 2019
 
-@author: rplazevedo
+@authors: rplazevedo, fferreira
 """
 
 import numpy as np
@@ -50,6 +50,7 @@ def run():
     v = np.zeros((Nt),dtype=DTYPE)
     N_walls = np.zeros((Nt),dtype=DTYPE)
     n_op = np.zeros((Nt),dtype=DTYPE)
+    exc_pts = np.zeros((Nt),dtype=DTYPE)
     
     # loads previous data
     phi_r = np.load(str(name)+'_phi_data'+str(last_part)+'.npy')
@@ -196,7 +197,8 @@ def run():
         np.save(str(name) + '_vdata' + str(part+int(last_part)) + '.npy', v)
         np.save(str(name) + '_nwalls_data' + str(part+int(last_part)) + '.npy', N_walls)
         np.save(str(name) + '_nop_data' + str(part+int(last_part)) + '.npy', n_op)
-    
+        np.save(str(name) + '_exc_pts_data' + str(part+int(last_part)) + '.npy', exc_pts)
+ 
     
     #    print("Part " + str(part+int(last_part))+" is saved--- %s seconds ---" % (time.time() - start_time))
     

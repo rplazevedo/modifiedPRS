@@ -17,18 +17,20 @@ config.read('input.ini')
 all_phi = config['Parameters']['all_phi']
 
 
-if input('Run cleanup? y/(n)\n') in ['y','Yes']:
+if input('Run cleanup? y/(n)\n') in ['y','Y']:
     cleanup.run()
 
 run_init = input('Run initial sPRS? (y)/n \n')
 run_sPRS_cont = input('Run full sPRS? (y)/n \n')
 run_mPRS = input('Run mPRS? (y)/n \n')
+plots = input('Plot data? y/(n) \n')
 
 import sprs_init
 import sprs_cont
 import mprs_cont
 import merge_v
 import merge_phi
+import plot_data
  
 
 if run_init in ['','y','Y']:
@@ -50,5 +52,8 @@ if run_mPRS in ['','y','Y']:
     reduce_data.run()
     if all_phi in ['yes', 'YES', 'some', 'SOME']:
         merge_phi.run()
+        
+if plots in ['y','Y']:
+    plot_data.run()
 
 print('---Done!---')

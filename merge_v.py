@@ -22,6 +22,8 @@ def run():
     v = np.memmap(str(name) + '_v.mymemmap', dtype='float32', mode='w+', shape=(Nt))
     nwalls = np.memmap(str(name) + '_nwalls.mymemmap', dtype='float32', mode='w+', shape=(Nt))
     nop = np.memmap(str(name) + '_nop.mymemmap', dtype='float32', mode='w+', shape=(Nt))
+    exc_pts = np.memmap(str(name) + '_exc_pts.mymemmap', dtype='float32', mode='w+', shape=(Nt))
+
     
     for p in range(1, parts+1):
         # Load the data files
@@ -29,6 +31,11 @@ def run():
         v_r = np.load(v_fname)
         nwalls_fname = str(name) + '_nwalls_data' + str(p) + '.npy'
         nwalls_r = np.load(nwalls_fname)
+        exc_pts_fname = str(name) + '_exc_pts_data' +str(p)+'.npy'
+        try:
+            exc_pts_r = np.load(exc_pts_fname)
+        except:
+            exc_pts_r = np.zeros(v_r.shape)
         try:
             nop_fname = str(name) + '_nop_data' + str(p) + '.npy'
             # print(str(name) + '_nop_data' + str(p) + '.npy')
@@ -40,6 +47,7 @@ def run():
             for i in range (0, v_r.shape[0]):
                 # print(c,i)
                 v[c]=v_r[i]
+                exc_pts[c] = exc_pts_r[i]
                 nwalls[c]=nwalls_r[i]
                 try:
                     nop[c] = nop_r[i]
@@ -53,6 +61,7 @@ def run():
     
                 v[c]=v_r[i+1]
                 nwalls[c]=nwalls_r[i]
+                exc_pts[c] = exc_pts_r[i]
                 try:
                     nop[c]=nop_r[i]
                 except:
@@ -66,6 +75,7 @@ def run():
         number+=1
     np.savetxt(str(name) +'_'+str(number)+ '_v.txt', v)
     np.savetxt(str(name) +'_'+str(number)+ '_nwalls.txt', nwalls)
+    np.savetxt(str(name) +'_'+str(number)+ '_exc_pts.txt', exc_pts)    
     try:
         np.savetxt(str(name) +'_'+str(number)+ '_nop.txt', nop)
     except:

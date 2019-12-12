@@ -27,6 +27,10 @@ def run():
             except FileNotFoundError:
                 pass
             try:
+                os.remove(str(name) + '_exc_pts_data' + str(p) + '.npy')
+            except FileNotFoundError:
+                pass
+            try:
                 os.remove(str(name) + '_tspan_data' + str(p) + '.npy')
             except FileNotFoundError:
                 pass
@@ -51,6 +55,10 @@ def run():
             os.remove(str(name) + '_nwalls.mymemmap')
         except FileNotFoundError:
             pass
+        try:         
+            os.remove(str(name) + '_exc_pts.mymemmap')
+        except FileNotFoundError:
+            pass
         try:
             os.remove(str(name) + '_nop.mymemmap')
         except FileNotFoundError:
@@ -61,6 +69,7 @@ def run():
         while os.path.isfile(str(name) +'_'+str(number)+ '_v.txt'):
             os.remove(str(name) +'_'+str(number)+ '_v.txt')
             os.remove(str(name) +'_'+str(number)+ '_nwalls.txt')
+            os.remove(str(name) +'_'+str(number)+ '_exc_pts.txt')
             try:
                 os.remove(str(name) +'_'+str(number)+ '_nop.txt')
             except FileNotFoundError:
@@ -71,6 +80,7 @@ def run():
         while os.path.isfile(str(name) +'_'+str(number)+ '_v.data'):
             os.remove(str(name) +'_'+str(number)+ '_v.data')
             os.remove(str(name) +'_'+str(number)+ '_nwalls.data')
+            os.remove(str(name) +'_'+str(number)+ '_exc_pts.data')
             try:
                 os.remove(str(name) +'_'+str(number)+ '_nop.data')
             except FileNotFoundError:
@@ -97,6 +107,10 @@ def run():
                 except FileNotFoundError:
                     pass
                 try:
+                    os.remove(str(name) + '_exc_pts_data' + str(p) + '.npy')
+                except FileNotFoundError:
+                    pass
+                try:
                     os.remove(str(name) + '_nop_data' + str(p) + '.npy')
                 except FileNotFoundError:
                     pass
@@ -118,6 +132,10 @@ def run():
                 os.remove(str(name) + '_nwalls.mymemmap')
             except FileNotFoundError:
                 pass
+            try:         
+                os.remove(str(name) + '_exc_pts.mymemmap')
+            except FileNotFoundError:
+                pass
             try:
                 os.remove(str(name) + '_nop.mymemmap')
             except FileNotFoundError:
@@ -128,14 +146,17 @@ def run():
             while os.path.isfile(str(name) +'_'+str(number)+ '_v.txt'):
                 os.remove(str(name) +'_'+str(number)+ '_v.txt')
                 os.remove(str(name) +'_'+str(number)+ '_nwalls.txt')
+                os.remove(str(name) +'_'+str(number)+ '_exc_pts.txt')
                 try:
                     os.remove(str(name) +'_'+str(number)+ '_nop.txt')
                 except FileNotFoundError:
                     pass
                 number+=1
+            number = 0
             while os.path.isfile(str(name) +'_'+str(number)+ '_v.data'):
                 os.remove(str(name) +'_'+str(number)+ '_v.data')
                 os.remove(str(name) +'_'+str(number)+ '_nwalls.data')
+                os.remove(str(name) +'_'+str(number)+ '_exc_pts.data')
                 try:
                     os.remove(str(name) +'_'+str(number)+ '_nop.data')
                 except FileNotFoundError:

@@ -1,6 +1,10 @@
-#VERSION 1.2
-#07/06/2019
-#Author: Fabio
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec  10 14:10:52 2019
+
+@authors: rplazevedo, fferreira
+"""
 
 import numpy as np
 import sys
@@ -44,7 +48,7 @@ def run():
     v = np.zeros((Nt),dtype=DTYPE)
     N_walls = np.zeros((Nt),dtype=DTYPE)
     n_op = np.zeros((Nt),dtype=DTYPE)
-    
+
     start_time = time.time()
     
     orig_stdout = sys.stdout
