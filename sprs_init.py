@@ -179,17 +179,14 @@ def run():
     #    print("Part " + str(part)+" is done--- %s seconds ---" % (time.time() - start_time))
     
     
-        if (all_phi=='yes' or all_phi=='YES'):
+        if (all_phi in ['yes', 'YES', 'init', 'INIT']):
     
             np.save(str(name) + '_phi_data' + str (part) +'.npy', phi)
             np.save(str(name) + '_d_phi_data' + str(part) + '.npy', d_phi)
-    
-        else:
-    
-            if (part == nparts):
-    
-                np.save(str(name) + '_phi_data' + str (part) +'.npy', phi)
-                np.save(str(name) + '_d_phi_data' + str(part)+ '.npy', d_phi)
+
+        elif part == nparts:
+            np.save(str(name) + '_phi_data' + str (part) +'.npy', phi)
+            np.save(str(name) + '_d_phi_data' + str(part)+ '.npy', d_phi)
             
         
     

@@ -10,12 +10,11 @@ Created on Wed Nov 13 15:27:50 2019
 import configparser
 import reduce_data
 import cleanup
-        
+
 
 config = configparser.ConfigParser()
 config.read('input.ini')
 all_phi = config['Parameters']['all_phi']
-
 
 if input('Run cleanup? y/(n)\n') in ['y','Y']:
     cleanup.run()
@@ -31,7 +30,6 @@ import mprs_cont
 import merge_v
 import merge_phi
 import plot_data
- 
 
 if run_init in ['','y','Y']:
     print('\n---Running initial sPRS---' )
