@@ -34,7 +34,18 @@ def run():
     # if name == '':
     #     name = name_def
     
-    lbl = ['sPRS', r'$\eta_m=50$', r'$\eta_m=35$', r'$\eta_m=20$', r'$\eta_m=5$']
+    
+    
+    lbl = ['sPRS', r'$\eta_m=50$', r'$\eta_m=25$', r'$\eta_m=5$']
+    
+    xlim_val =(5,250)
+    ylim_val =  0
+    line_width_val = 1.0
+    xscale_val = 'log'
+    yscale_val = 'linear'
+    title_val = fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_\rho={alpha_e:G}$"
+    
+    
     
     # V plots 
     plt.figure()
@@ -45,15 +56,17 @@ def run():
             x, y = line.split()
             T.append(float(x))
             V.append(float(y))
-        plt.plot(T, V, label=lbl[number])         
+        plt.plot(T, V, label=lbl[number], lw=line_width_val)         
         if number == 0:
             V0 = V
         number += 1
-    plt.xscale('log')
-    plt.title(fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_1={alpha_1:G}$, $\alpha_2={alpha_2:G}$, $\alpha_\rho={alpha_e:G}$")
+    plt.title(title_val)
     plt.xlabel(r'$\eta$')
     plt.ylabel(r'$\gamma^2 v^2$')
-    plt.xlim(5,250)
+    plt.xscale(xscale_val)
+    plt.yscale(yscale_val)
+    plt.xlim(xlim_val)
+    plt.ylim(bottom=ylim_val)
     plt.grid()
     plt.legend()
     plt.show()
@@ -68,13 +81,15 @@ def run():
             T.append(float(x))
             V.append(float(y))
         Va = np.array(V)
-        plt.plot(T, np.abs(Va-V0a)/V0a, label=lbl[number])
+        plt.plot(T, np.abs(Va-V0a)/V0a, label=lbl[number], lw=line_width_val)
         number += 1
-    plt.xscale('log')
-    plt.title(fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_1={alpha_1:G}$, $\alpha_2={alpha_2:G}$, $\alpha_\rho={alpha_e:G}$")
+    plt.title(title_val)
     plt.xlabel(r'$\eta$')
     plt.ylabel(r'$\gamma^2 v^2$ (frac. diff.)')
-    plt.xlim(5,250)
+    plt.xscale(xscale_val)
+    plt.yscale(yscale_val)
+    plt.xlim(xlim_val)
+    plt.ylim(bottom=ylim_val)
     plt.grid()
     plt.legend()
     plt.show()
@@ -88,15 +103,17 @@ def run():
             x, y = line.split()
             T.append(float(x))
             Nw.append(float(y))
-        plt.plot(T, Nw, label=lbl[number])         
+        plt.plot(T, Nw, label=lbl[number], lw=line_width_val)         
         if number == 0:
             Nw0 = Nw
         number += 1
-    plt.xscale('log')
-    plt.title(fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_1={alpha_1:G}$, $\alpha_2={alpha_2:G}$, $\alpha_\rho={alpha_e:G}$")
+    plt.title(title_val)
     plt.xlabel(r'$\eta$')
     plt.ylabel(r'$N_{walls}$')
-    plt.xlim(5,250)
+    plt.xscale(xscale_val)
+    plt.yscale(yscale_val)
+    plt.xlim(xlim_val)
+    plt.ylim(bottom=ylim_val)
     plt.grid()
     plt.legend()
     plt.show()
@@ -111,13 +128,15 @@ def run():
             T.append(float(x))
             Nw.append(float(y))
         Nwa = np.array(Nw)
-        plt.plot(T, np.abs(Nwa-Nw0a)/Nw0a, label=lbl[number])
+        plt.plot(T, np.abs(Nwa-Nw0a)/Nw0a, label=lbl[number], lw=line_width_val)
         number += 1
-    plt.title(fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_1={alpha_1:G}$, $\alpha_2={alpha_2:G}$, $\alpha_\rho={alpha_e:G}$")
-    plt.xscale('log')
+    plt.title(title_val)
     plt.xlabel(r'$\eta$')
     plt.ylabel(r'$N_{walls}$ (frac. diff.)')
-    plt.xlim(5,250)
+    plt.xscale(xscale_val)
+    plt.yscale(yscale_val)
+    plt.xlim(xlim_val)
+    plt.ylim(bottom=ylim_val)
     plt.grid()
     plt.legend()
     plt.show()
@@ -132,16 +151,18 @@ def run():
             T.append(float(x))
             P.append(float(y))
             
-        plt.plot(T, P, label=lbl[number])
+        plt.plot(T, P, label=lbl[number], lw=line_width_val)
         number += 1
-    plt.title(fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_1={alpha_1:G}$, $\alpha_2={alpha_2:G}$, $\alpha_\rho={alpha_e:G}$")
-    plt.xscale('log')
+    plt.title(title_val)
     plt.xlabel(r'$\eta$')
     plt.ylabel('Frac. of vacua')
-    plt.xlim(5,250)
+    plt.xscale(xscale_val)
+    plt.yscale(yscale_val)
+    plt.xlim(xlim_val)
+    plt.ylim(bottom=ylim_val)
     plt.grid()
     plt.legend()
     plt.show()
 
 # Run the function
-run()
+# run()
