@@ -46,7 +46,7 @@ def run():
     # initializes the arrays
     tspan= np.zeros((Nt),dtype=DTYPE)
     phi = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
-    energ_cond = np.zeros((Nx,Nx),dtype=DTYPE)
+    cond = np.zeros((Nx,Nx),dtype=DTYPE)
     nabla_phi = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
     d_phi = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
     d_V = np.zeros((Nt,Nx,Nx),dtype=DTYPE)
@@ -54,7 +54,7 @@ def run():
     v = np.zeros((Nt),dtype=DTYPE)
     N_walls = np.zeros((Nt),dtype=DTYPE)
     n_op = np.zeros((Nt),dtype=DTYPE)
-    exc_pts = np.zeros((Nt),dtype=DTYPE)
+    cond_pts = np.zeros((Nt),dtype=DTYPE)
 
     
     # loads previous data
@@ -80,18 +80,14 @@ def run():
     
     print("w0 = ", w0, ", V0 = ", V0, ", phi_0 = ", phi_0, ", t_0 =", t0, ", dt = ", dt,", alpha 1 =", alpha_1,
             ', alpha 2 =', alpha_2, ", alpha e =", alpha_e)
-    
-    
-    phi = phi_r
-    nabla_phi[:,:]=0
-    d_V[:,:] = 0
-    d_phi = d_phi_r
-    tspan = tspan_r
-    v = v_r
-    N_walls = N_walls_r
-    n_op = n_op_r
-    
-    
+        
+    phi[0] = phi_r[-1]
+    d_phi[0] = d_phi_r[-1]
+    tspan[0] = tspan_r[-1]
+    v[0] = v_r[-1]
+    N_walls[0] = N_walls_r[-1]
+    n_op[0] = n_op_r[-1]
+     
     phi_r = None
     d_phi_r = None
     tspan_r = None
@@ -99,32 +95,10 @@ def run():
     N_walls_r = None
     n_op_r = None
     
-    tspan[0] = tspan[-1]
-    tspan[1:] = 0
-    
-    phi[0] = phi[-1]
-    phi[1:] = 0
-    
-    d_phi[0] = d_phi[-1]
-    d_phi[1:] = 0
-    
-    v[0] = v[-1]
-    v[1:] = 0
-    
-    N_walls[0] = N_walls[-1]
-    N_walls[1:] = 0
-    
-    n_op[0] = n_op[-1]
-    n_op[1:] = 0
-    
-    
-    
     for i in range(1,Nt):
         tspan[i] = tspan[0]+dt*i
         #print(tspan[i])
-    
-    Nw=0
-    
+        
     count_op_last = int(n_op[0])
         
     print("Initialization is done--- %s seconds ---" % (time.time() - start_time))  
@@ -132,18 +106,20 @@ def run():
     for part in range(1,nparts+1):
         for n in range(0,Nt-1):
               
-#            step_start_time = time.time()    
+            step_start_time = time.time()    
                     
-            # Calculates the gradient of phi   
-            nabla_phi[n] = ( (np.roll(phi[n],1,axis=0)+np.roll(phi[n],-1,axis=0)-2*phi[n])/(delta_x**2)+
-                             (np.roll(phi[n],1,axis=1)+np.roll(phi[n],-1,axis=1)-2*phi[n])/(delta_y**2))                          
    
             # Check where the energy is too low -> vacuum                 
             V = V0*((phi[n]/phi_0)**2-1)**2      #potential
-            energ_cond = (np.abs(d_phi[n]**2 
-                                +(0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2
-                                +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2
-                                +V) < V0*alpha_e)*1      
+            cond = (np.abs(d_phi[n]**2 
+                    +(0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2
+                    +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2
+                    +V) >= V0*alpha_e).nonzero()   
+            
+            # phi_nonvac = phi[n][cond]
+            
+            # phi[n] = np.where(phi[n]<0,-1,1)
+            # phi[n][cond] = phi_nonvac
             
             # Old conditions - ONLY USE FOR COMPARISONS 
             # cond_1 = (np.abs(phi[n]) > alpha_1)*1
@@ -153,24 +129,25 @@ def run():
             # cond_1_xb = (np.abs(np.roll(phi[n],-1,axis=0)) > alpha_1)*1
             # cond_1_yf = (np.abs(np.roll(phi[n],1,axis=1)) > alpha_1)*1
             # cond_1_yb = (np.abs(np.roll(phi[n],-1,axis=1)) > alpha_1)*1               
-            # energ_cond = cond_1 * cond_2 * cond_1_xf * cond_1_xb * cond_1_yf * cond_1_yb
+            # cond = cond_1 * cond_2 * cond_1_xf * cond_1_xb * cond_1_yf * cond_1_yb
             
-            exc_pts[n] = np.sum(energ_cond)
+            cond_pts[n] = cond[0].shape[0]
             
-            phi[n][energ_cond * phi[n] < 0] = -1.0      #negative vacua
-            phi[n][energ_cond * phi[n] > 0] = 1.0       #positive vacua
-            
+            # Calculates the gradient of phi   
+            nabla_phi[n][cond] = ( (np.roll(phi[n],1,axis=0)[cond]+np.roll(phi[n],-1,axis=0)[cond]-2*phi[n][cond])/(delta_x**2)+
+                              (np.roll(phi[n],1,axis=1)[cond]+np.roll(phi[n],-1,axis=1)[cond]-2*phi[n][cond])/(delta_y**2))                          
+                      
             delta = 0.5*alpha*dt*(daeta)/(tspan[n])                
-            d_V[n]=V0*4*(phi[n]/phi_0)*( (phi[n]**2)/(phi_0**2)-1 )
-            #sets d_phi to 0 where the condition is not met, calculates it otherwise
-            d_phi[n+1] = np.where(energ_cond,
-                                     0.0,
-                                     ((1-delta)*d_phi[n]+dt*(nabla_phi[n]-d_V[n]))/(1+delta))                        
-            #Ek[n+1] = Ek[n+1] +  1/(8*pi)*(d_phi[n+1])**2
-            phi[n+1] = phi[n] + dt*d_phi[n+1]
+            d_V[n][cond]=V0*4*(phi[n][cond]/phi_0)*( (phi[n][cond]**2)/(phi_0**2)-1 )
+            #calculates d_phi where the condition is met
+            d_phi[n+1][cond] = ((1-delta)*d_phi[n][cond]
+                                      +dt*(nabla_phi[n][cond]-d_V[n][cond]))/(1+delta)                
 
-            wall_loc = abs(phi[n+1]) <= Nw_alpha    #condition for a pt = wall
-            Nw = np.sum(wall_loc)                   # number of walls
+            phi[n+1] = phi[n]
+            phi[n+1][cond] = phi[n][cond] + dt*d_phi[n+1][cond]
+            
+            wall_loc = (abs(phi[n+1]) <= Nw_alpha).nonzero()    #condition for a pt = wall
+            Nw = wall_loc[0].shape[0]                   # number of walls
             # average velocity of the walls
             v[n+1] = (1.0/(2.0*Nw))*np.sum(
                                  ((d_phi[n+1][wall_loc])**2/(1.0))/
@@ -179,8 +156,8 @@ def run():
             count_op = count_op+1    
             N_walls[n+1] = Nw
         
-#            print("n: " , n, "count: ", count_op, "part = ", part)
-#            print("--- %s seconds ---" % (time.time() - step_start_time))
+            # print("n: " , n, "count: ", count_op, "part = ", part)
+            # print("--- %s seconds ---" % (time.time() - step_start_time))
             
             n_op[n+1] =count_op + count_op_last
     
@@ -223,7 +200,7 @@ def run():
         np.save(str(name) + '_vdata' + str(part+int(last_part)) + '.npy', v)
         np.save(str(name) + '_nwalls_data' + str(part+int(last_part)) + '.npy', N_walls)
         np.save(str(name) + '_nop_data' + str(part+int(last_part)) + '.npy', n_op)
-        np.save(str(name) + '_exc_pts_data' + str(part+int(last_part)) + '.npy', exc_pts/Nx**2)
+        np.save(str(name) + '_exc_pts_data' + str(part+int(last_part)) + '.npy', -cond_pts/Nx**2+1)
 
     
     #    print("Part " + str(part+int(last_part))+" is saved--- %s seconds ---" % (time.time() - start_time))
@@ -252,8 +229,8 @@ def run():
         N_walls[0] = N_walls[-1]
         N_walls[1:] = 0
         
-        exc_pts[0] = exc_pts[-1]
-        exc_pts[1:] = 0
+        cond_pts[0] = cond_pts[-1]
+        cond_pts[1:] = 0
     
         n_op[0] = n_op[-1]
         n_op[1:] = 0

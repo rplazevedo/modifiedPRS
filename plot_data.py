@@ -28,6 +28,9 @@ def run():
     alpha_e = float(config['Parameters']['alpha_e'])
     Nw_alpha = float(config['Parameters']['Nw_alpha'])
     daeta = int(config['Parameters']['dlna/dlneta'])
+    last_part = int(config['PRS']['sPRS_parts'])
+    Nt = int(config['PRS']['points_per_part'])
+    nparts = int(config['PRS']['mPRS_parts'])
     name = name_def       
     
     # name = str(input('Name of the data to plot?\n'))
@@ -36,9 +39,9 @@ def run():
     
     
     
-    lbl = ['sPRS', r'$\eta_m=50$', r'$\eta_m=25$', r'$\eta_m=5$']
+    lbl = ['sPRS', r'mPRS', r'mPRS', r'mPRS', r'mPRS', r'mPRS', r'mPRS']
     
-    xlim_val =(5,250)
+    xlim_val =(1,dt*Nt*(nparts+last_part))
     ylim_val =  0
     line_width_val = 1.0
     xscale_val = 'log'
@@ -70,7 +73,7 @@ def run():
     plt.grid()
     plt.legend()
     plt.show()
-    
+    # Comparison
     plt.figure()
     number = 0
     V0a = np.array(V0)
@@ -117,7 +120,7 @@ def run():
     plt.grid()
     plt.legend()
     plt.show()
-    
+    # Comparison
     plt.figure()
     number = 0
     Nw0a = np.array(Nw0)
