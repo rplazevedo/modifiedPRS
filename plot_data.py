@@ -16,6 +16,7 @@ def run():
     config = configparser.ConfigParser()
     config.read('input.ini')
     name_def = config['Parameters']['name']
+    Nx = int(config['PRS']['Lattice_size'])
     t0 = float(config['PRS']['initial_t'])
     w0 = float(config['PRS']['initial_width'])
     phi_0 = float(config['PRS']['initial_phi'])
@@ -39,14 +40,14 @@ def run():
     
     
     
-    lbl = ['sPRS', r'mPRS', r'mPRS', r'mPRS', r'mPRS', r'mPRS', r'mPRS']
+    lbl = ['sPRS', r'no vac repl.', r'vac repl.']
     
-    xlim_val =(1,dt*Nt*(nparts+last_part))
+    xlim_val =(dt*(Nt-1)*(last_part),dt*(Nt-1)*(nparts+last_part))
     ylim_val =  0
     line_width_val = 1.0
     xscale_val = 'log'
     yscale_val = 'linear'
-    title_val = fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_\rho={alpha_e:G}$"
+    title_val = fr"$w_0={w0:G}$, $\phi_0={phi_0:G}$, $N_x={Nx:G}$, $dt={dt:G}$, $\alpha_w={Nw_alpha:G}$, $\alpha_\rho={alpha_e:G}$"
     
     
     
