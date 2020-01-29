@@ -84,6 +84,37 @@ def roll_sparse(x, shift, axis=0):
 
     return x_r.asformat(fmt)
 
+def neighbours(cond, N):
+    """
+    Parameters
+    ----------
+    cond : tuple of arrays
+        Tuple with the coordinates of the points that satisfy the condition.
+    N : integer
+        Size of the grid.
+
+    Returns
+    -------
+    cond_l : array
+        X coordinates of the points to the left.
+    cond_r : array
+        X coordinates of the points to the right.
+    cond_d : array
+        Y coordinates of the points down.
+    cond_u : array
+        Y coordinates of the points up.
+    """
+    cond_l = cond[0]-1
+    cond_r = cond[0]+1
+    cond_d = cond[1]-1
+    cond_u = cond[1]+1
+    
+    cond_l[cond_l == -1] = N
+    cond_r[cond_r == N] = 0
+    cond_d[cond_d == -1] = N
+    cond_u[cond_u == N] = 0
+    
+    return cond_l, cond_r, cond_d, cond_u
 
 def run():
     
@@ -176,11 +207,13 @@ def run():
             +(0.5*(np.roll(phi_r,1,axis=1)-np.roll(phi_r,-1,axis=1))/delta_y)**2
             +V) >= V0*alpha_e).nonzero()   
     
+    # get coordinates of the neighbours
+    cond_l, cond_r, cond_d, cond_u = neighbours(cond, Nx)
     phi_nonvac = phi_r[cond]
     
     # -1 goes to 0, all other val go to val+1
-    phi_r = np.where(phi_r<0, 0.0, 2.0)
-    phi_r[cond] = phi_nonvac + 1.0
+    phi_r = np.where(phi_r<0, -1.0, 1.0)
+    phi_r[cond] = phi_nonvac 
     # save the array as a compressed sparse row matrix
     phi.append(scipy.sparse.csr_matrix(phi_r, dtype=DTYPE))
     # save the last d_phi as a compressed sparse row matrix
@@ -207,8 +240,8 @@ def run():
                 
                 phi_nonvac = phi[n][cond]
                 
-                phi.append(scipy.sparse.csr_matrix(np.where(phi[n]<0, 0.0, 2.0)))
-                phi[n][cond] = phi_nonvac + 1.0
+                phi.append(scipy.sparse.csr_matrix(np.where(phi[n]<0, -1.0, 1.0)))
+                phi[n][cond] = phi_nonvac
                 
             cond_pts[n] = cond[0].shape[0]
             
