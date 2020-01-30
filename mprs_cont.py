@@ -116,21 +116,11 @@ def run():
                     +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2
                     +V) >= V0*alpha_e).nonzero()   
             
-            # phi_nonvac = phi[n][cond]
+            phi_nonvac = phi[n][cond]
             
-            # phi[n] = np.where(phi[n]<0,-1,1)
-            # phi[n][cond] = phi_nonvac
-            
-            # Old conditions - ONLY USE FOR COMPARISONS 
-            # cond_1 = (np.abs(phi[n]) > alpha_1)*1
-            # cond_2 = (np.abs(d_phi[n]**2 +(0.5*(np.roll(phi[n],1,axis=0)-np.roll(phi[n],-1,axis=0))/delta_x)**2
-            #                     +(0.5*(np.roll(phi[n],1,axis=1)-np.roll(phi[n],-1,axis=1))/delta_y)**2) < alpha_2)*1
-            # cond_1_xf = (np.abs(np.roll(phi[n],1,axis=0)) > alpha_1)*1
-            # cond_1_xb = (np.abs(np.roll(phi[n],-1,axis=0)) > alpha_1)*1
-            # cond_1_yf = (np.abs(np.roll(phi[n],1,axis=1)) > alpha_1)*1
-            # cond_1_yb = (np.abs(np.roll(phi[n],-1,axis=1)) > alpha_1)*1               
-            # cond = cond_1 * cond_2 * cond_1_xf * cond_1_xb * cond_1_yf * cond_1_yb
-            
+            phi[n] = np.where(phi[n]<0,-1,1)
+            phi[n][cond] = phi_nonvac
+                     
             cond_pts[n] = cond[0].shape[0]
             
             # Calculates the gradient of phi   
